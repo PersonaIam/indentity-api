@@ -1,7 +1,6 @@
 /**
  * Created by vladtomsa on 27/09/2018
  */
-const { Base64 } = require('js-base64');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const usersController = require('../controllers').userController;
@@ -49,16 +48,13 @@ const sendRegistrationToUsers = (userInfoList) => {
     } = app.get('config');
 
     if (userInfoList && userInfoList.length) {
-        const decode = Base64.decode;
-
-        userInfoList.forEach(({id, email, username, createdAt}) => {
-            const decryptedEmail = decode(email);
-            const decryptedUsername = decode(username);
+        userInfoList.forEach((userInfo) => {
+            const {id, username, createdAt, contactInfo: { email }} = userInfo;
 
             const token = jwt.sign(
                 {
-                    email: decryptedEmail,
-                    username: decryptedUsername,
+                    email,
+                    username,
                 },
                 REGISTRATION_LINK_JWT_KEY,
                 {
@@ -73,12 +69,12 @@ const sendRegistrationToUsers = (userInfoList) => {
             const link = `${host}:${port}/account/confirmation/${token}`;
 
             const userEmailInfo = {
-                username: decryptedUsername,
+                username,
                 link,
                 expirationData,
             };
 
-            sendUserRegistrationEmail(decryptedEmail, userEmailInfo)
+            sendUserRegistrationEmail(email, userEmailInfo)
                 .then(() => {
                     confirmRegistrationEmailSent(id)
                 })
@@ -92,13 +88,13 @@ const sendRegistrationToUsers = (userInfoList) => {
 
 const searchNewUsers = () => {
     usersController.getNewUsers()
-        .then(sendRegistrationToUsers)
+        .then(({ userInfoList }) => sendRegistrationToUsers(userInfoList))
         .catch(error => console.log('err: ', error));
 };
 
 const confirmRegistrationEmailSent = (userId) => {
     usersController.update({ isRegEmailSent: true }, userId)
-        .then(data => console.log('user updated: ', data))
+        .then(data => console.log('user updated: ', data.id))
         .catch(error => console.log('err: ', error));
 };
 

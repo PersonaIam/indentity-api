@@ -3,6 +3,8 @@
  */
 const Sequelize = require('sequelize');
 
+let sequelizeInstance = null;
+
 const init = (app, cb) => {
     const {
         database: {
@@ -33,9 +35,15 @@ const init = (app, cb) => {
 
     sequelize
         .authenticate()
-        .then(() => {
+        .then(async () => {
+            /* Add extensions for calculating geo-distance */
+            await sequelize.query('CREATE EXTENSION IF NOT EXISTS cube;');
+            await sequelize.query('CREATE EXTENSION IF NOT EXISTS earthdistance;');
+
             console.log('Connection to database has been established successfully!');
             app.set('sequelize', sequelize);
+
+            sequelizeInstance = sequelize;
 
             return cb(null, sequelize);
         })
@@ -48,4 +56,5 @@ const init = (app, cb) => {
 
 module.exports = {
     init,
+    getInstance: () => sequelizeInstance,
 };

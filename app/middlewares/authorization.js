@@ -1,7 +1,10 @@
 /**
  * Created by vladtomsa on 08/10/2018
  */
+const ContactInfo = require('../database/models').ContactInfo;
+const Countries = require('../database/models').Countries;
 const User = require('../database/models').User;
+const UserRole = require('../database/models').UserRole;
 const { Base64: { encode, decode } } = require('js-base64');
 
 const BASIC_AUTH_HEADER_PREFIX = 'Basic';
@@ -9,6 +12,7 @@ const BASIC_AUTH_HEADER_PREFIX = 'Basic';
 const UNAUTHORISED_PATHS = [
     { url: '/api/users', method: 'POST' },
     { url: '/api/users/confirm', method: 'PUT' },
+    { url: '/api/countries', method: 'GET' },
 ];
 
 const cancelRequest = (res) => {
@@ -19,7 +23,25 @@ const cancelRequest = (res) => {
 const verifyUser = async (userInfo) => {
     const { username, password } = userInfo;
 
-    const user = await User.find({ where: { username }});
+    const user = await User.find({
+        where: { username },
+        include: [
+            {
+                model: UserRole,
+                as: 'userRoleInfo',
+            },
+            {
+                model: ContactInfo,
+                as: 'contactInfo',
+                include: [
+                    {
+                        model: Countries,
+                        as: 'country',
+                    },
+                ]
+            }
+        ]
+    });
 
     return user && user.password === password ? user : null;
 };

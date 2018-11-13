@@ -2,24 +2,100 @@
  * Created by vladtomsa on 27/09/2018
  */
 const jwt = require('jsonwebtoken');
+const ContactInfo = require('../database/models').ContactInfo;
+const Countries = require('../database/models').Countries;
 const User = require('../database/models').User;
+const UserRole = require('../database/models').UserRole;
 const { Base64: { encode } } = require('js-base64');
 const {REGISTRATION_LINK_JWT_KEY} = require('../../config/constants');
+const {extractUserInfo} =  require('../helpers/extractEncryptedInfo');
 
-const list = (params) => {
+const setUserContactInfo = async (userInfo, contactInfo) => {
+    let contact;
+
+    if (userInfo.contactInfoId) {
+        const updatedContactInfoResultResult = await ContactInfo.update(contactInfo, {
+            where: { id: userInfo.contactInfoId },
+            individualHooks: true,
+        });
+
+        contact = updatedContactInfoResultResult[1][0];
+    }
+    else {
+        contact = await ContactInfo.create(contactInfo);
+    }
+
+    await userInfo.setContactInfo(contact);
+
+    return userInfo;
+};
+
+const list = ({ contactInfo = { }, userRoleInfo = {}, pageNumber = 0, pageSize = 10, ...params }) => {
     return User
-        .findAll({
+        .findAndCountAll({
             where: {...params},
-            attributes: {exclude: ['password']}
+            attributes: {
+                exclude: ['contactInfoId', 'password'],
+            },
+            offset: pageNumber * pageSize,
+            limit: pageSize,
+            include: [
+                {
+                    model: UserRole,
+                    as: 'userRoleInfo',
+                    where: {...userRoleInfo}
+                },
+                {
+                    model: ContactInfo,
+                    as: 'contactInfo',
+                    where: { ...contactInfo },
+                    include: [
+                        {
+                            model: Countries,
+                            as: 'country',
+                        },
+                    ]
+                }
+            ]
+        })
+        .then((result) => {
+            return {
+                count: result.count,
+                userInfoList: result.rows.map((user) => {
+                    return extractUserInfo(user.dataValues);
+                }),
+            };
         })
 };
 
-const create = ({username, email}) => {
-    return User.create({username, email});
+const create = async ({username, userRoleId, email, contactInfo}) => {
+    try {
+        const userInfo = await User.create({username, userRoleId, email});
+
+        if (contactInfo) {
+            await setUserContactInfo(userInfo, contactInfo);
+        }
+
+        return userInfo;
+    } catch (error) {
+        return error;
+    }
 };
 
-const update = (userInfo, id) => {
-    return User.update(userInfo, {where: {id: id}, individualHooks: true});
+const update = async (userInfo, id) => {
+    try {
+        // public static update(values: Object, options: Object): Promise<Array<affectedCount, affectedRows>>
+        const updatedUserResult = await User.update(userInfo, {where: {id: id}, individualHooks: true});
+        const updatedUser = updatedUserResult[1][0];
+
+        if (userInfo.contactInfo) {
+            await setUserContactInfo(updatedUser, userInfo.contactInfo);
+        }
+
+        return updatedUser;
+    } catch (error) {
+        return error;
+    }
 };
 
 const confirmUser = ({address, password, token}) => {
@@ -29,12 +105,15 @@ const confirmUser = ({address, password, token}) => {
             const {username, email} = jwt.verify(token, REGISTRATION_LINK_JWT_KEY);
 
             const verifyUserParams = {
-                email: encode(email),
+                // ToDo see if where supports nesting
+                contactInfo: {
+                    email: encode(email),
+                },
                 username: encode(username),
             };
 
             list(verifyUserParams)
-                .then((userInfoList) => {
+                .then(({ userInfoList }) => {
                     if (userInfoList && userInfoList.length) {
                         const userInfo = userInfoList[0];
 
@@ -48,7 +127,7 @@ const confirmUser = ({address, password, token}) => {
                             personaAddress: address,
                         };
 
-                        update(toUpdate, userInfo.dataValues.id)
+                        update(toUpdate, userInfo.id)
                             .then(() => resolve({
                                 username
                             }))

@@ -2,6 +2,7 @@
  * Created by vladtomsa on 27/09/2018
  */
 const emailSender = require('./emailSender');
+const retriveAddressGeolocation = require('./retriveAddressGeolocation');
 
 const getCronInterval = (interval = {}) => {
     const seconds = interval.seconds ? `*/${interval.seconds}` : '*';
@@ -32,10 +33,20 @@ const emailSenderTask = (app) => {
     return {
         interval: getCronInterval(emailTask.interval),
         task: emailTask.task,
-    }
+    };
+};
+
+const retriveAddressGeolocationTask = (app) => {
+    const retrieveTask = retriveAddressGeolocation(app);
+
+    return {
+        interval: getCronInterval(retrieveTask.interval),
+        task: retrieveTask.task,
+    };
 };
 
 module.exports = [
     emailSenderTask,
+    retriveAddressGeolocationTask,
 ];
 

@@ -4,6 +4,7 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const logger = require('express-bunyan-logger');
+const expressip = require('express-ip');
 const routesConfig = require('../routes');
 const {
     authorizationMiddleware,
@@ -15,6 +16,7 @@ const init = (app, cb) => {
     app.use(bodyParser.json());
     app.use(cors());
     app.use(logger());
+    app.use(expressip().getIpInfoMiddleware);
     app.use(authorizationMiddleware);
 
     // Add app routes

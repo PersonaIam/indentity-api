@@ -1,14 +1,13 @@
 'use strict';
+const UserRole = require('./index').UserRole;
+const ContactInfo = require('./index').ContactInfo;
 const {Base64} = require('js-base64');
-const encode = Base64.encode;
 
 const encryptUserInfo = (userInfo) => {
     const encode = Base64.encode;
     const changed = userInfo._changed;
 
     if (changed.username) userInfo.username = encode(userInfo.username);
-
-    if (changed.email) userInfo.email = encode(userInfo.email);
 
     if (changed.personaAddress) userInfo.personaAddress = encode(userInfo.personaAddress);
 
@@ -23,29 +22,59 @@ module.exports = (sequelize, DataTypes) => {
         // boolean, or a string. If you provide the same string for multiple columns, they will form a
         // composite unique key.
         username: {type: DataTypes.STRING, unique: 'compositeIdentityIndex'},
-        email: {type: DataTypes.STRING, unique: 'compositeIdentityIndex'},
         personaAddress: DataTypes.STRING,
         password: DataTypes.STRING,
         isActive: DataTypes.BOOLEAN,
-        isRegEmailSent: DataTypes.BOOLEAN
+        isRegEmailSent: DataTypes.BOOLEAN,
+        userRoleId: {
+            type: DataTypes.INTEGER,
+            // allowNull: false,
+            // defaultValue: 1,
+            references: {
+                model: UserRole,
+                key: 'id'
+            },
+        },
+        contactInfoId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: ContactInfo,
+                key: 'id'
+            }
+        },
     }, {});
 
     User.associate = function (models) {
-        // associations can be defined here
+        User.belongsTo(models.UserRole, {
+            foreignKey: 'userRoleId',
+            as: 'userRoleInfo',
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        });
+        User.belongsTo(models.ContactInfo, {
+            foreignKey: 'contactInfoId',
+            as: 'contactInfo',
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        });
     };
 
     User.hook('beforeCreate', (user, options) => {
-        console.log('before create');
         return encryptUserInfo(user);
     });
 
     User.hook('beforeUpdate', (user, options) => {
-        console.log('before update');
         return encryptUserInfo(user);
     });
 
-    User.sync()
-        .then(() => console.log('Users table created'))
+    User.sync({ alter: true })
+        .then(async () => {
+            // there is an open issue with sync default value and foreign keys
+            await sequelize.query(`ALTER TABLE "Users" ALTER COLUMN "userRoleId" SET DEFAULT 1;`);
+            await sequelize.query(`UPDATE "Users" SET "userRoleId" = 1  WHERE "userRoleId" IS NULL;`);
+            await sequelize.query(`ALTER TABLE "Users" ALTER COLUMN "userRoleId" SET NOT NULL;`);
+        })
         .catch((error) => console.log('Error creating users table: ', error));
 
     return User;
