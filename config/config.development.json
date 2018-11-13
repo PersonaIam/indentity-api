@@ -24,5 +24,6 @@
     "port": 587,
     "username": "persona.identity.api",
     "password": "-----"
-  }
+  },
+  "googleMapAPIKey": "-----"
 }

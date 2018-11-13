@@ -21,6 +21,7 @@
   "email": {
     "service": "gmail",
     "username": "persona.identity.api@gmail.com",
-    "password": "Qwerty123!@#"
-  }
+    "password": "------"
+  },
+  "googleMapAPIKey": "-----"
 }

@@ -22,10 +22,7 @@ const findAddressesGeoLocations = (locations) => {
 
           if (country) toSearchAddress += `${country.name},`;
 
-          // ToDo change API KEY
-          const API_KEY = 'API_KEY_HERE';
-
-          http.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${API_KEY}&address=${toSearchAddress}`)
+          http.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${self.googleMapAPIKey}&address=${toSearchAddress}`)
             .then(async (result) => {
                 try {
                     const data = result.data;
@@ -65,8 +62,11 @@ const retriveGeolocationJob = (app) => {
     self.app = app;
 
     const {
-        RETRIVE_ADDRESS_GEOLOCATION_TAKS_INTERVAL,
-    } = app.get('config').constants;
+        constants: { RETRIVE_ADDRESS_GEOLOCATION_TAKS_INTERVAL },
+        googleMapAPIKey,
+    } = app.get('config');
+
+    self.googleMapAPIKey = googleMapAPIKey;
 
     return {
         interval: {
