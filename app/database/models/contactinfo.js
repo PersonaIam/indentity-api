@@ -87,9 +87,9 @@ module.exports = (sequelize, DataTypes) => {
         return encryptContactInfo(contactInfo);
     });
 
-    ContactInfo.sync({ alter: true })
-        .then(() => console.log('ContactInfo table created'))
-        .catch((error) => console.log('Error creating ContactInfo table: ', error));
+    // ContactInfo.sync({ alter: true })
+    //     .then(() => console.log('ContactInfo table created'))
+    //     .catch((error) => console.log('Error creating ContactInfo table: ', error));
 
     return ContactInfo;
 };

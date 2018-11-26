@@ -24,6 +24,7 @@ const init = (app, cb) => {
         dialect,
         port,
         pool,
+        logging: null,
     };
 
     const sequelize = new Sequelize(
@@ -32,6 +33,8 @@ const init = (app, cb) => {
         password,
         sequelizeOptions
     );
+
+    sequelizeInstance = sequelize;
 
     sequelize
         .authenticate()
@@ -42,8 +45,6 @@ const init = (app, cb) => {
 
             console.log('Connection to database has been established successfully!');
             app.set('sequelize', sequelize);
-
-            sequelizeInstance = sequelize;
 
             return cb(null, sequelize);
         })

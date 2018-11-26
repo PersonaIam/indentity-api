@@ -7,8 +7,8 @@
     "port": 3000
   },
   "database": {
-    "username": "vladtomsawork",
-    "password": "Qwerty123!@#",
+    "username": "--------",
+    "password": "--------",
     "database": "identity",
     "host": "127.0.0.1",
     "port": 5432,
@@ -22,8 +22,8 @@
   "email": {
     "host": "smtp.sendgrid.net",
     "port": 587,
-    "username": "persona.identity.api",
+    "username": "-----",
     "password": "-----"
   },
-  "googleMapAPIKey": "-----"
+  "googleMapAPIKey": "------"
 }

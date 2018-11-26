@@ -14,7 +14,7 @@ const path = "/users";
 router
     .route('/')
         .post(validate({body: validationSchema.createUser}), (req, res) => {
-            usersController.create(req.body)
+            usersController.create(req)
                 .then(data => res.status(200).send(data))
                 .catch(error => res.status(400).send(error));
         });

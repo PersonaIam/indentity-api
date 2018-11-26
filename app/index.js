@@ -22,7 +22,8 @@ async.auto(
         },
 
         database: ['config', (scope, cb) => {
-            serverModulesConfigs.sequelize.init(app, (error) => cb(error))
+            serverModulesConfigs.sequelize.init(app, (error) => cb(error));
+            serverModulesConfigs.umzug.syncDatabase();
         }],
 
         email: ['config', (scope, cb) => {

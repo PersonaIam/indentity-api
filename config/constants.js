@@ -15,4 +15,10 @@ module.exports = {
         uppercase: true,
         strict: true,
     },
+    USER_ROLES: {
+        IDENTITY_USER: 'IDENTITY_USER',
+        NOTARY: 'NOTARY',
+        PROVIDER: 'PROVIDER',
+        SYS_ADMIN: 'SYS_ADMIN',
+    }
 };

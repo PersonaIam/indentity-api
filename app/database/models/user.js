@@ -68,14 +68,14 @@ module.exports = (sequelize, DataTypes) => {
         return encryptUserInfo(user);
     });
 
-    User.sync({ alter: true })
-        .then(async () => {
-            // there is an open issue with sync default value and foreign keys
-            await sequelize.query(`ALTER TABLE "Users" ALTER COLUMN "userRoleId" SET DEFAULT 1;`);
-            await sequelize.query(`UPDATE "Users" SET "userRoleId" = 1  WHERE "userRoleId" IS NULL;`);
-            await sequelize.query(`ALTER TABLE "Users" ALTER COLUMN "userRoleId" SET NOT NULL;`);
-        })
-        .catch((error) => console.log('Error creating users table: ', error));
+    // User.sync({ alter: true })
+    //     .then(async () => {
+    //         // there is an open issue with sync default value and foreign keys
+    //         await sequelize.query(`ALTER TABLE "Users" ALTER COLUMN "userRoleId" SET DEFAULT 1;`);
+    //         await sequelize.query(`UPDATE "Users" SET "userRoleId" = 1  WHERE "userRoleId" IS NULL;`);
+    //         await sequelize.query(`ALTER TABLE "Users" ALTER COLUMN "userRoleId" SET NOT NULL;`);
+    //     })
+    //     .catch((error) => console.log('Error creating users table: ', error));
 
     return User;
 };

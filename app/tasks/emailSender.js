@@ -4,6 +4,7 @@
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const usersController = require('../controllers').userController;
+const subscriptionsController  = require('../controllers').subscriptionController;
 const getTemplateByFileName = require('../helpers/pugTemplateGenerator');
 
 const self = {};
@@ -26,6 +27,28 @@ const sendUserRegistrationEmail = (email, {
         from: '"Persona Identity" <persona.identity.api@gmail.com>',
         to: email,
         subject: 'Persona Identity Management Registration ✔',
+        html: emailTemplate,
+    };
+
+    return emailService.sendMail(mailOptions);
+};
+
+const sendUserSubscriptionEmail = (email, {
+    firstName,
+    lastName,
+}) => {
+    const app = self.app;
+    const emailService = app.get('emailService');
+
+    const emailTemplate = getTemplateByFileName('userSubscription.pug', {
+        firstName,
+        lastName,
+    });
+
+    const mailOptions = {
+        from: '"Persona Identity" <persona.identity.api@gmail.com>',
+        to: email,
+        subject: 'Persona Identity Management Subscription ✔',
         html: emailTemplate,
     };
 
@@ -83,18 +106,45 @@ const sendRegistrationToUsers = (userInfoList) => {
                 });
         });
     }
+};
 
+const sendSubscriptionToUsers = (subscriptionInfoList) => {
+    if (subscriptionInfoList && subscriptionInfoList.length) {
+        subscriptionInfoList.forEach((subscription) => {
+            const {id, email, firstName, lastName} = subscription;
+
+            sendUserSubscriptionEmail(email, { firstName, lastName })
+                .then(() => {
+                    confirmSubsctiptionEmailSent(id)
+                })
+                .catch((error) => {
+                    console.log(error)
+                });
+        });
+    };
 };
 
 const searchNewUsers = () => {
     usersController.getNewUsers()
         .then(({ userInfoList }) => sendRegistrationToUsers(userInfoList))
-        .catch(error => console.log('err: ', error));
+        .catch(error => console.log('err sending registration email: ', error));
+};
+
+const searchNewSubscriptions = () => {
+    subscriptionsController.getNewSubscriptions()
+        .then(({ subscriptionInfoList }) => sendSubscriptionToUsers(subscriptionInfoList))
+        .catch(error => console.log('err sending subscription email: ', error));
 };
 
 const confirmRegistrationEmailSent = (userId) => {
     usersController.update({ isRegEmailSent: true }, userId)
         .then(data => console.log('user updated: ', data.id))
+        .catch(error => console.log('err: ', error));
+};
+
+const confirmSubsctiptionEmailSent = (subscriptionId) => {
+    subscriptionsController.update({ isSubscriptionEmailSent: true }, subscriptionId)
+        .then(() => console.log('subsctiption updated'))
         .catch(error => console.log('err: ', error));
 };
 
@@ -112,6 +162,7 @@ const emailSender = (app) => {
         },
         task: () => {
             searchNewUsers();
+            searchNewSubscriptions();
         }
     };
 };

@@ -13,6 +13,7 @@ const UNAUTHORISED_PATHS = [
     { url: '/api/users', method: 'POST' },
     { url: '/api/users/confirm', method: 'PUT' },
     { url: '/api/countries', method: 'GET' },
+    { url: '/api/subscription', method: 'POST' },
 ];
 
 const cancelRequest = (res) => {

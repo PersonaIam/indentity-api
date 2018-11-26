@@ -6,16 +6,53 @@ const ContactInfo = require('../database/models').ContactInfo;
 const Countries = require('../database/models').Countries;
 const User = require('../database/models').User;
 const UserRole = require('../database/models').UserRole;
-const { Base64: { encode } } = require('js-base64');
-const {REGISTRATION_LINK_JWT_KEY} = require('../../config/constants');
-const {extractUserInfo} =  require('../helpers/extractEncryptedInfo');
+const {Base64: {encode}} = require('js-base64');
+const {REGISTRATION_LINK_JWT_KEY, USER_ROLES} = require('../../config/constants');
+const {extractUserInfo} = require('../helpers/extractEncryptedInfo');
+
+const isAllowed = async (req) => {
+    const {body: {userRoleId}, userInfo} = req;
+
+    const userRoles = await UserRole.findAll();
+
+    let providerInfo = null, sysAdminInfo = null;
+
+    userRoles.forEach((role) => {
+        if (role.name === USER_ROLES.PROVIDER) providerInfo = role;
+        if (role.name === USER_ROLES.SYS_ADMIN) sysAdminInfo = role;
+    });
+
+    const isSysAdminPerformingAction = () => {
+      return userInfo && userInfo.userRoleId === sysAdminInfo.id;
+    };
+
+    /**
+     * Providers can be created only by sys admin's
+     * */
+    if (
+        userRoleId === providerInfo.id
+        && !isSysAdminPerformingAction()
+    ) {
+      throw ('UNAUTHORIZED: Only administrators can create providers');
+    }
+
+    /**
+     * Providers can be created only by sys admin's
+     * */
+    if (
+        userRoleId === sysAdminInfo.id
+        && !isSysAdminPerformingAction()
+    ) {
+        throw ('UNAUTHORIZED: Only administrators can create administrators');
+    }
+};
 
 const setUserContactInfo = async (userInfo, contactInfo) => {
     let contact;
 
     if (userInfo.contactInfoId) {
         const updatedContactInfoResultResult = await ContactInfo.update(contactInfo, {
-            where: { id: userInfo.contactInfoId },
+            where: {id: userInfo.contactInfoId},
             individualHooks: true,
         });
 
@@ -30,7 +67,7 @@ const setUserContactInfo = async (userInfo, contactInfo) => {
     return userInfo;
 };
 
-const list = ({ contactInfo = { }, userRoleInfo = {}, pageNumber = 0, pageSize = 10, ...params }) => {
+const list = ({contactInfo = {}, userRoleInfo = {}, pageNumber = 0, pageSize = 10, ...params}) => {
     return User
         .findAndCountAll({
             where: {...params},
@@ -48,7 +85,7 @@ const list = ({ contactInfo = { }, userRoleInfo = {}, pageNumber = 0, pageSize =
                 {
                     model: ContactInfo,
                     as: 'contactInfo',
-                    where: { ...contactInfo },
+                    where: {...contactInfo},
                     include: [
                         {
                             model: Countries,
@@ -68,8 +105,10 @@ const list = ({ contactInfo = { }, userRoleInfo = {}, pageNumber = 0, pageSize =
         })
 };
 
-const create = async ({username, userRoleId, email, contactInfo}) => {
+const create = async (req) => {
     try {
+        await isAllowed(req);
+        const {username, userRoleId, email, contactInfo} = req.body;
         const userInfo = await User.create({username, userRoleId, email});
 
         if (contactInfo) {
@@ -78,7 +117,7 @@ const create = async ({username, userRoleId, email, contactInfo}) => {
 
         return userInfo;
     } catch (error) {
-        return error;
+        throw error;
     }
 };
 
@@ -94,7 +133,7 @@ const update = async (userInfo, id) => {
 
         return updatedUser;
     } catch (error) {
-        return error;
+        throw error;
     }
 };
 
@@ -113,7 +152,7 @@ const confirmUser = ({address, password, token}) => {
             };
 
             list(verifyUserParams)
-                .then(({ userInfoList }) => {
+                .then(({userInfoList}) => {
                     if (userInfoList && userInfoList.length) {
                         const userInfo = userInfoList[0];
 

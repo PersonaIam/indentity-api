@@ -3,10 +3,14 @@
  */
 const countries = require('./countries/countries');
 const notaries = require('./notaries/notaries');
+const providers = require('./providers/providers');
+const subscription = require('./subscription/subscription');
 const users = require('./users/users');
 
 module.exports = [
     countries,
     notaries,
+    providers,
+    subscription,
     users,
 ];

@@ -8,9 +8,10 @@ const UserRole = require('../database/models').UserRole;
 const listUsers = require('./users').list;
 const {extractUserInfo} =  require('../helpers/extractEncryptedInfo');
 const {getInstance} = require('../config/sequelize');
+const {USER_ROLES} = require('../../config/constants');
 
 const list = (params) => {
-    return listUsers({ ...params, userRoleInfo: { name: 'NOTARY' } });
+    return listUsers({ ...params, userRoleInfo: { name: USER_ROLES.NOTARY } });
 };
 
 const listByLocation = ({ contactInfo = { }, userRoleInfo = {}, lat, lng, pageNumber = 0, pageSize = 10, ...params }) => {
@@ -37,7 +38,7 @@ const listByLocation = ({ contactInfo = { }, userRoleInfo = {}, lat, lng, pageNu
                     as: 'userRoleInfo',
                     where: {
                         ...userRoleInfo,
-                        name: 'NOTARY',
+                        name: USER_ROLES.NOTARY,
                     }
                 },
                 {

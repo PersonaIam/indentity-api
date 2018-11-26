@@ -6,7 +6,7 @@ const { Base64: { decode } } = require('js-base64');
 const extractUserInfo = (userInfo) => {
     const user = {
         ...userInfo,
-        personaAddress: decode(userInfo.personaAddress),
+        personaAddress: userInfo.personaAddress ? decode(userInfo.personaAddress) : null,
         username: decode(userInfo.username),
     };
 
@@ -43,7 +43,19 @@ const extractContactInfo = (contactInfo) => {
     return contact;
 };
 
+const extractSubscriptionInfoInfo = (subscriptionInfo) => {
+    const subscription = {
+        ...subscriptionInfo,
+        firstName: decode(subscriptionInfo.firstName),
+        lastName: decode(subscriptionInfo.lastName),
+        email: decode(subscriptionInfo.email),
+    };
+
+    return subscription;
+};
+
 module.exports = {
     extractUserInfo,
     extractContactInfo,
+    extractSubscriptionInfoInfo,
 };

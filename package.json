@@ -37,7 +37,8 @@
     "pg-hstore": "2.3.2",
     "pug": "2.0.3",
     "sequelize": "4.39.0",
-    "strftime": "0.10.0"
+    "strftime": "0.10.0",
+    "umzug": "^2.2.0"
   },
   "devDependencies": {
     "morgan": "1.9.1",
