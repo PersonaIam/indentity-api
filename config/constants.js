@@ -20,5 +20,10 @@ module.exports = {
         NOTARY: 'NOTARY',
         PROVIDER: 'PROVIDER',
         SYS_ADMIN: 'SYS_ADMIN',
-    }
+    },
+    CREDIT_SERVER: {
+        HOST: 'http://5.135.75.72',
+        PORT: '8080',
+        PATH: '/api/testnet',
+    },
 };

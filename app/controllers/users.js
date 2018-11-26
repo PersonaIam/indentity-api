@@ -2,12 +2,13 @@
  * Created by vladtomsa on 27/09/2018
  */
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const ContactInfo = require('../database/models').ContactInfo;
 const Countries = require('../database/models').Countries;
 const User = require('../database/models').User;
 const UserRole = require('../database/models').UserRole;
 const {Base64: {encode}} = require('js-base64');
-const {REGISTRATION_LINK_JWT_KEY, USER_ROLES} = require('../../config/constants');
+const {REGISTRATION_LINK_JWT_KEY, USER_ROLES, CREDIT_SERVER} = require('../../config/constants');
 const {extractUserInfo} = require('../helpers/extractEncryptedInfo');
 
 const isAllowed = async (req) => {
@@ -23,7 +24,7 @@ const isAllowed = async (req) => {
     });
 
     const isSysAdminPerformingAction = () => {
-      return userInfo && userInfo.userRoleId === sysAdminInfo.id;
+        return userInfo && userInfo.userRoleId === sysAdminInfo.id;
     };
 
     /**
@@ -33,7 +34,7 @@ const isAllowed = async (req) => {
         userRoleId === providerInfo.id
         && !isSysAdminPerformingAction()
     ) {
-      throw ('UNAUTHORIZED: Only administrators can create providers');
+        throw ('UNAUTHORIZED: Only administrators can create providers');
     }
 
     /**
@@ -167,9 +168,24 @@ const confirmUser = ({address, password, token}) => {
                         };
 
                         update(toUpdate, userInfo.id)
-                            .then(() => resolve({
-                                username
-                            }))
+                            .then(() => {
+                                axios.post(
+                                    `${CREDIT_SERVER.HOST}:${CREDIT_SERVER.PORT}${CREDIT_SERVER.PATH}`,
+                                    {
+                                        address,
+                                    }
+                                )
+                                    .then(() => {
+                                        console.log('CREDITED ADDRESS: ', address);
+                                    })
+                                    .catch(e => {
+                                        console.log('CANNOT CREDIT: ', address);
+                                    });
+
+                                resolve({
+                                    username
+                                });
+                            })
                             .catch(reject)
                     }
                     else {
