@@ -7,13 +7,13 @@ const sgTransport = require('nodemailer-sendgrid-transport'); // wrapper for nod
 const init = (app, cb) => {
     const {
         email: {
-          password,
+            password,
         },
     } = app.get('config');
 
     const sendMail = mailer.config(sgTransport({
         auth: {
-          api_key: password,
+            api_key: password,
         },
     }));
 

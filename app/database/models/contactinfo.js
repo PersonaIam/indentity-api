@@ -79,17 +79,13 @@ module.exports = (sequelize, DataTypes) => {
         });
     };
 
-    ContactInfo.hook('beforeCreate', (contactInfo, options) => {
+    ContactInfo.hook('beforeCreate', (contactInfo) => {
         return encryptContactInfo(contactInfo);
     });
 
-    ContactInfo.hook('beforeUpdate', (contactInfo, options) => {
+    ContactInfo.hook('beforeUpdate', (contactInfo) => {
         return encryptContactInfo(contactInfo);
     });
-
-    // ContactInfo.sync({ alter: true })
-    //     .then(() => console.log('ContactInfo table created'))
-    //     .catch((error) => console.log('Error creating ContactInfo table: ', error));
 
     return ContactInfo;
 };

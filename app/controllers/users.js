@@ -3,6 +3,7 @@
  */
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const logger = require('../config/logger');
 const ContactInfo = require('../database/models').ContactInfo;
 const Countries = require('../database/models').Countries;
 const User = require('../database/models').User;
@@ -68,12 +69,19 @@ const setUserContactInfo = async (userInfo, contactInfo) => {
     return userInfo;
 };
 
+const findById = (id) => {
+    return User.findById(id)
+        .then((result) => {
+            return result ? extractUserInfo(result) : null;
+        });
+};
+
 const list = ({contactInfo = {}, userRoleInfo = {}, pageNumber = 0, pageSize = 10, ...params}) => {
     return User
         .findAndCountAll({
             where: {...params},
             attributes: {
-                exclude: ['contactInfoId', 'password'],
+                exclude: ['contactInfoId', 'password', 'socketId'],
             },
             offset: pageNumber * pageSize,
             limit: pageSize,
@@ -176,10 +184,11 @@ const confirmUser = ({address, password, token}) => {
                                     }
                                 )
                                     .then(() => {
-                                        console.log('CREDITED ADDRESS: ', address);
+                                        logger.info(`CREDITED ADDRESS: ${address}`);
                                     })
                                     .catch(e => {
-                                        console.log('CANNOT CREDIT: ', address);
+                                        logger.error(`CANNOT CREDIT ADDRESS: ${address}`);
+                                        logger.error(e);
                                     });
 
                                 resolve({
@@ -208,10 +217,32 @@ const getNewUsers = () => {
     return list(params);
 };
 
+const getCurrentUserBySocketId = async (socketId) => {
+    let user;
+    const { count, userInfoList } = await list({ socketId });
+
+    if (count) {
+        user = userInfoList[0];
+    }
+
+    return user;
+};
+
+const getUserByPersonaAddress = async  (personaAddress) => {
+    return User.find({
+        where: {
+            personaAddress: encode(personaAddress)
+        }
+    });
+};
+
 module.exports = {
     confirmUser,
     create,
+    findById,
     getNewUsers,
+    getCurrentUserBySocketId,
+    getUserByPersonaAddress,
     list,
     update,
 };

@@ -4,7 +4,8 @@
 const path = require('path');
 const Sequelize = require('sequelize');
 const Umzug = require('umzug');
-const { getInstance } = require('./sequelize');
+const logger = require('../logger');
+const { getInstance } = require('../sequelize');
 
 const syncDatabase = () => {
     const sequelizeInstance = getInstance();
@@ -21,13 +22,13 @@ const syncDatabase = () => {
                 sequelizeInstance.getQueryInterface(),
                 Sequelize,
             ],
-            path: path.resolve(__dirname, '../', 'database', 'migrations'),
+            path: path.resolve(__dirname, '../../', 'database', 'migrations'),
             pattern: /\.js$/
         },
     });
 
     const logUmzugEvent = eventName => (name) => {
-        console.info(`${eventName} :: ${name}`);
+        logger.info(`${eventName} :: ${name}`);
     };
 
     const printStatus = () => Promise.all([umzug.executed(), umzug.pending()])
@@ -36,7 +37,7 @@ const syncDatabase = () => {
             pending: results[1].map(m => m.file),
         }))
         .then((status) => {
-            console.info(JSON.stringify(status, null, 2));
+            logger.info(JSON.stringify(status, null, 2));
             return status;
         });
 

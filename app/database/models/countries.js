@@ -215,25 +215,5 @@ module.exports = (sequelize, DataTypes) => {
         // associations can be defined here
     };
 
-    // Countries.sync()
-    //     .then(() => {
-    //         COUNTRIES.forEach(async (country) => {
-    //             await Countries.findOrCreate({
-    //                 where: {
-    //                     name: country.name,
-    //                 },
-    //                 defaults: {
-    //                     name: country.name,
-    //                     createdAt: sequelize.fn('now'),
-    //                 },
-    //             })
-    //                 .catch((error) => {
-    //                     console.log('error inserting ' + country.name);
-    //                     console.log(error);
-    //                 });
-    //         })
-    //     })
-    //     .catch((error) => console.log('Error creating countries table: ', error));
-
     return Countries;
 };

@@ -7,8 +7,8 @@
     "port": 3000
   },
   "database": {
-    "username": "--------",
-    "password": "--------",
+    "username": "vladtomsawork",
+    "password": "Qwerty123!@#",
     "database": "identity",
     "host": "127.0.0.1",
     "port": 5432,
@@ -22,8 +22,8 @@
   "email": {
     "host": "smtp.sendgrid.net",
     "port": 587,
-    "username": "-----",
-    "password": "-----"
+    "username": "tomsavlad90",
+    "password": "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"
   },
-  "googleMapAPIKey": "------"
+  "googleMapAPIKey": "AIzaSyBRaL2BP5MELELoJqc1BeVWYrWOPBVhRJM"
 }

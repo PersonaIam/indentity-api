@@ -38,6 +38,8 @@ router
     .get((req, res) => {
         const userInfo = req.userInfo;
 
+        // req.session.userInfo = userInfo;
+
         res
             .status(200)
             .send(extractUserInfo(userInfo));

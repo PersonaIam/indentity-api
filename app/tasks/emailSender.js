@@ -3,6 +3,7 @@
  */
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const logger = require('../config/logger');
 const usersController = require('../controllers').userController;
 const subscriptionsController  = require('../controllers').subscriptionController;
 const getTemplateByFileName = require('../helpers/pugTemplateGenerator');
@@ -101,9 +102,7 @@ const sendRegistrationToUsers = (userInfoList) => {
                 .then(() => {
                     confirmRegistrationEmailSent(id)
                 })
-                .catch((error) => {
-                    console.log(error)
-                });
+                .catch(logger.error);
         });
     }
 };
@@ -117,35 +116,33 @@ const sendSubscriptionToUsers = (subscriptionInfoList) => {
                 .then(() => {
                     confirmSubsctiptionEmailSent(id)
                 })
-                .catch((error) => {
-                    console.log(error)
-                });
+                .catch(logger.error);
         });
-    };
+    }
 };
 
 const searchNewUsers = () => {
     usersController.getNewUsers()
         .then(({ userInfoList }) => sendRegistrationToUsers(userInfoList))
-        .catch(error => console.log('err sending registration email: ', error));
+        .catch(error => logger.error('ERROR SENDING REGISTRATION EMAIL: ', error));
 };
 
 const searchNewSubscriptions = () => {
     subscriptionsController.getNewSubscriptions()
         .then(({ subscriptionInfoList }) => sendSubscriptionToUsers(subscriptionInfoList))
-        .catch(error => console.log('err sending subscription email: ', error));
+        .catch(error => logger.error('ERROR SENDING SUBSCRIPTION EMAIL: ', error));
 };
 
 const confirmRegistrationEmailSent = (userId) => {
     usersController.update({ isRegEmailSent: true }, userId)
-        .then(data => console.log('user updated: ', data.id))
-        .catch(error => console.log('err: ', error));
+        .then(data => logger.info(`USER ${data.id} REGISTERED SUCCESSFULLY`))
+        .catch(logger.error);
 };
 
 const confirmSubsctiptionEmailSent = (subscriptionId) => {
     subscriptionsController.update({ isSubscriptionEmailSent: true }, subscriptionId)
-        .then(() => console.log('subsctiption updated'))
-        .catch(error => console.log('err: ', error));
+        // .then(() => console.log('subsctiption updated'))
+        .catch(logger.error);
 };
 
 

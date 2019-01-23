@@ -4,11 +4,13 @@
 const async = require('async');
 const cron = require('node-cron');
 const express = require('express');
+const http = require('http');
 
 const ENV = process.env.NODE_ENV || 'development';
 const config = require('../config')[ENV];
 const PORT = process.env.PORT || config.api.port;
 const serverModulesConfigs = require('./config');
+const logger = require('./config/logger');
 const tasks = require('./tasks');
 
 const app = express();
@@ -48,12 +50,17 @@ async.auto(
 
     },
     (error) => {
-        if (error) console.log(error);
+        if (error) logger.error(error);
         else {
-            app.listen(PORT, () => {
-                console.info('***************************************************');
-                console.info('Server started on http://localhost:%s', PORT);
-                console.info('***************************************************');
+            const server = http.createServer(app);
+
+            serverModulesConfigs.chat.init(server, () => {
+                logger.info(`Websocket communication established on port: ${PORT}`);
+            });
+
+            server.listen(PORT, () => {
+                logger.info(`Server started on port: ${PORT}`);
+                console.info(`Server started on port: ${PORT}`); // visual indicator that server is up and running
             });
         }
     }

@@ -2,6 +2,7 @@
  * Created by vladtomsa on 27/09/2018
  */
 const Sequelize = require('sequelize');
+const logger = require('../logger/index');
 
 let sequelizeInstance = null;
 
@@ -18,20 +19,20 @@ const init = (app, cb) => {
         }
     } = app.get('config');
 
-    const sequelizeOptions = {
-        operatorsAliases: false,
-        host,
-        dialect,
-        port,
-        pool,
-        logging: null,
-    };
-
     const sequelize = new Sequelize(
         database,
         username,
         password,
-        sequelizeOptions
+        {
+            operatorsAliases: false,
+            host,
+            dialect,
+            port,
+            pool,
+            logging: (message) => {
+                logger.info(message);
+            }
+        }
     );
 
     sequelizeInstance = sequelize;
@@ -42,14 +43,13 @@ const init = (app, cb) => {
             /* Add extensions for calculating geo-distance */
             await sequelize.query('CREATE EXTENSION IF NOT EXISTS cube;');
             await sequelize.query('CREATE EXTENSION IF NOT EXISTS earthdistance;');
-
-            console.log('Connection to database has been established successfully!');
+            logger.info('Connection to database has been established successfully!');
             app.set('sequelize', sequelize);
 
             return cb(null, sequelize);
         })
         .catch(err => {
-            console.error('Unable to connect to the database:', err);
+            logger.error('Unable to connect to the database:', err);
 
             return cb(err);
         });

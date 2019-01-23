@@ -2,13 +2,15 @@
  * Created by vladtomsa on 08/11/2018
  */
 const http = require('axios');
+const logger = require('../config/logger');
 const contactsController = require('../controllers').contactsController;
 
 const self = {};
 
 const findAddressesGeoLocations = (locations) => {
   if (locations && locations.length) {
-      console.log(`Finding GEOCORDINATES for ${locations.length} addresses`);
+      locations.info(`Finding GEOCORDINATES for ${locations.length} addresses`);
+
       locations.forEach((location) => {
           const { id, address, city, zipCode, country } = location;
 
@@ -35,14 +37,14 @@ const findAddressesGeoLocations = (locations) => {
                     }, id);
                 }
                 catch (error) {
-                    console.log(error);
+                    logger.error(error);
                 }
             })
-            .catch(console.log);
+            .catch(logger.error);
       })
   }
   else {
-      console.log('All addresses have geolocation specified');
+      logger.info('All addresses have geolocation specified');
   }
 };
 
@@ -55,7 +57,7 @@ const searchUnspecifiedGeolocationAddresses = () => {
         },
     })
         .then(findAddressesGeoLocations)
-        .catch(error => console.log('err: ', error));
+        .catch(logger.error);
 };
 
 const retriveGeolocationJob = (app) => {
