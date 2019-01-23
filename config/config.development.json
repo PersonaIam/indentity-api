@@ -23,7 +23,7 @@
     "host": "smtp.sendgrid.net",
     "port": 587,
     "username": "tomsavlad90",
-    "password": "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"
+    "password": "-----"
   },
-  "googleMapAPIKey": "AIzaSyBRaL2BP5MELELoJqc1BeVWYrWOPBVhRJM"
+  "googleMapAPIKey": "-----"
 }
