@@ -29,9 +29,10 @@ const init = (app, cb) => {
             dialect,
             port,
             pool,
-            logging: (message) => {
-                logger.info(message);
-            }
+            logging: null,
+            // logging: (message) => {
+            //     // logger.info(message);
+            // }
         }
     );
 

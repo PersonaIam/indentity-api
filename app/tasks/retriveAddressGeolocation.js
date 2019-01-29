@@ -43,9 +43,6 @@ const findAddressesGeoLocations = (locations) => {
             .catch(logger.error);
       })
   }
-  else {
-      logger.info('All addresses have geolocation specified');
-  }
 };
 
 const searchUnspecifiedGeolocationAddresses = () => {

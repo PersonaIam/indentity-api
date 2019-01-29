@@ -41,7 +41,7 @@ const init = (app, cb) => {
 
     // Add app routes
     routesConfig.forEach((route) => {
-        app.use(`/api${route.path}`, route.router);
+        app.use(`/identity-api${route.path}`, route.router);
     });
 
     // sessionStore.sync();

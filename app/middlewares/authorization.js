@@ -10,10 +10,10 @@ const { Base64: { encode, decode } } = require('js-base64');
 const BASIC_AUTH_HEADER_PREFIX = 'Basic';
 
 const UNAUTHORISED_PATHS = [
-    { url: '/api/users', method: 'POST' },
-    { url: '/api/users/confirm', method: 'PUT' },
-    { url: '/api/countries', method: 'GET' },
-    { url: '/api/subscription', method: 'POST' },
+    { url: '/identity-api/users', method: 'POST' },
+    { url: '/identity-api/users/confirm', method: 'PUT' },
+    { url: '/identity-api/countries', method: 'GET' },
+    { url: '/identity-api/subscription', method: 'POST' },
 ];
 
 const cancelRequest = (res) => {
