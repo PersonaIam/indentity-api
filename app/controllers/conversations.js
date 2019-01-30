@@ -130,34 +130,36 @@ const getUserConversationsByPersonaAddress = async (personaAddress) => {
         .then(async (userMembers) => {
             const usersConversationsIds = userMembers.map(member => member.conversationId);
 
-            return await Conversation
-                .findAll({
-                    where: {
-                        id: {
-                            [Op.or]: usersConversationsIds
-                        }
-                    },
-                    include: [
-                        {
-                            model: ConversationMember,
-                            as: 'conversationMembers',
+            return usersConversationsIds && usersConversationsIds.length
+                ? await Conversation
+                    .findAll({
+                        where: {
+                            id: {
+                                [Op.or]: usersConversationsIds
+                            }
                         },
-                    ],
-                })
-                .then((conversations) => {
-                    return conversations.map((conversation) => {
-                        const currentUserConversationMember = conversation.conversationMembers.find(m => m.personaAddress === personaAddress);
+                        include: [
+                            {
+                                model: ConversationMember,
+                                as: 'conversationMembers',
+                            },
+                        ],
+                    })
+                    .then((conversations) => {
+                        return conversations.map((conversation) => {
+                            const currentUserConversationMember = conversation.conversationMembers.find(m => m.personaAddress === personaAddress);
 
-                        const conversationLastUpdate = moment(conversation.updatedAt);
-                        const userLastSeen = moment(currentUserConversationMember.lastSeenOn);
+                            const conversationLastUpdate = moment(conversation.updatedAt);
+                            const userLastSeen = moment(currentUserConversationMember.lastSeenOn);
 
-                        // ToDo check this condition
-                        // whether or not the current user has unread messages here
-                        conversation.setDataValue('notifications', moment(userLastSeen).diff(moment(conversationLastUpdate)) < 100);
+                            // ToDo check this condition
+                            // whether or not the current user has unread messages here
+                            conversation.setDataValue('notifications', moment(userLastSeen).diff(moment(conversationLastUpdate)) < 100);
 
-                        return conversation;
-                    });
-                });
+                            return conversation;
+                        });
+                    })
+                : [];
         });
 };
 
