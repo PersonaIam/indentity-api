@@ -135,12 +135,35 @@ const update = async (userInfo, id) => {
         // public static update(values: Object, options: Object): Promise<Array<affectedCount, affectedRows>>
         const updatedUserResult = await User.update(userInfo, {where: {id: id}, individualHooks: true});
         const updatedUser = updatedUserResult[1][0];
-
         if (userInfo.contactInfo) {
             await setUserContactInfo(updatedUser, userInfo.contactInfo);
         }
 
-        return updatedUser;
+        return await User.find({
+            where: { id },
+            attributes: {
+                exclude: ['contactInfoId', 'password', 'socketId'],
+            },
+            include: [
+                {
+                    model: UserRole,
+                    as: 'userRoleInfo',
+                },
+                {
+                    model: ContactInfo,
+                    as: 'contactInfo',
+                    include: [
+                        {
+                            model: Countries,
+                            as: 'country',
+                        },
+                    ]
+                }
+            ]
+        })
+            .then((user) => {
+                return extractUserInfo(user.dataValues);
+            });
     } catch (error) {
         throw error;
     }
