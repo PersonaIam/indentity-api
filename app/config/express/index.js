@@ -11,6 +11,7 @@ const routesConfig = require('../../routes');
 
 const {
     authorizationMiddleware,
+    errorHandlerMiddleware,
     reqBodyValidatorMiddleware,
 } = require('../../middlewares');
 
@@ -44,10 +45,9 @@ const init = (app, cb) => {
         app.use(`/identity-api${route.path}`, route.router);
     });
 
-    // sessionStore.sync();
-
     // Error handler for validation errors
     app.use(reqBodyValidatorMiddleware);
+    app.use(errorHandlerMiddleware);
 
     cb(null);
 };

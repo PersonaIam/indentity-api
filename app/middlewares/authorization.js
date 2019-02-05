@@ -3,6 +3,7 @@
  */
 const ContactInfo = require('../database/models').ContactInfo;
 const Countries = require('../database/models').Countries;
+const Referrals = require('../database/models').Referrals;
 const User = require('../database/models').User;
 const UserRole = require('../database/models').UserRole;
 const { Base64: { encode, decode } } = require('js-base64');
@@ -39,8 +40,12 @@ const verifyUser = async (userInfo) => {
                         model: Countries,
                         as: 'country',
                     },
-                ]
-            }
+                ],
+            },
+            {
+                model: Referrals,
+                as: 'referralInfo',
+            },
         ]
     });
 

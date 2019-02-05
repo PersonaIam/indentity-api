@@ -13,18 +13,18 @@ const path = "/users";
 
 router
     .route('/')
-        .post(validate({body: validationSchema.createUser}), (req, res) => {
+        .post(validate({body: validationSchema.createUser}), (req, res, next) => {
             usersController.create(req)
                 .then(data => res.status(200).send(data))
-                .catch(error => res.status(400).send(error));
+                .catch(next);
         });
 
 router
     .route('/confirm')
-        .put(validate({ body: validationSchema.confirmUser }), (req, res) => {
+        .put(validate({ body: validationSchema.confirmUser }), (req, res, next) => {
             usersController.confirmUser(req.body)
                 .then(data => res.status(200).send(data))
-                .catch(error => res.status(400).send(error));
+                .catch(next);
         });
 
 /**
@@ -47,18 +47,18 @@ router
 
 router
     .route('/:id')
-        .get((req, res) => {
+        .get((req, res, next) => {
             const findParams = {
               id: req.params.id,
             };
             usersController.list(findParams)
                 .then(({ userInfoList }) => res.status(200).send(userInfoList[0]))
-                .catch(error => res.status(400).send(error));
+                .catch(next);
         })
-        .put(validate({body: validationSchema.createUser}), (req, res) => {
+        .put(validate({body: validationSchema.createUser}), (req, res, next) => {
             usersController.update(req.body, req.params.id)
                 .then(data => res.status(200).send(data))
-                .catch(error => res.status(400).send(error));
+                .catch(next);
         });
 
 module.exports = {

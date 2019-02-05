@@ -10,7 +10,7 @@ const path = "/providers";
 
 router
     .route('/')
-    .get((req, res) => {
+    .get((req, res, next) => {
         const params = {
             ...req.params,
             ...req.query,
@@ -18,18 +18,16 @@ router
 
         providersController.list(params)
             .then(data => res.status(200).send(data))
-            .catch(error => res.status(400).send(error));
+            .catch(next);
     })
     .post(
         // validate({body: validationSchema.createUser}),
-        (req, res) => {
+        (req, res, next) => {
             providersController.create(req)
                 .then(data => {
                     res.status(200).send(data)
                 })
-                .catch(error => {
-                    res.status(400).send(error)
-                });
+                .catch(next);
         });
 
 module.exports = {

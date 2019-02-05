@@ -21,7 +21,10 @@ module.exports = (sequelize, DataTypes) => {
         // Creating two objects with the same value will throw an error. The unique property can be either a
         // boolean, or a string. If you provide the same string for multiple columns, they will form a
         // composite unique key.
-        username: {type: DataTypes.STRING, unique: 'compositeIdentityIndex'},
+        username: {
+            type: DataTypes.STRING,
+            unique: true,
+        },
         personaAddress: DataTypes.STRING,
         password: DataTypes.STRING,
         isActive: DataTypes.BOOLEAN,
@@ -58,6 +61,10 @@ module.exports = (sequelize, DataTypes) => {
             as: 'contactInfo',
             onDelete: 'cascade',
             onUpdate: 'cascade',
+        });
+        User.hasOne(models.Referrals, {
+            as: 'referralInfo',
+            foreignKey: 'userId',
         });
     };
 

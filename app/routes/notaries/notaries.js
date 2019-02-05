@@ -13,40 +13,38 @@ const path = "/notaries";
 
 router
     .route('/')
-        .get((req, res) => {
-            const params = {
-                ...req.params,
-                ...req.query,
-            };
+    .get((req, res, next) => {
+        const params = {
+            ...req.params,
+            ...req.query,
+        };
 
-            notariesController.list(params)
-                .then(data => res.status(200).send(data))
-                .catch(error => res.status(400).send(error));
-        })
-        .post(
-            // validate({body: validationSchema.createUser}),
-            (req, res) => {
-                notariesController.create(req.body)
+        notariesController.list(params)
+            .then(data => res.status(200).send(data))
+            .catch(next);
+    })
+    .post(
+        // validate({body: validationSchema.createUser}),
+        (req, res, next) => {
+            notariesController.create(req.body)
                 .then(data => {
                     res.status(200).send(data)
                 })
-                .catch(error => {
-                    res.status(400).send(error)
-                });
+                .catch(next);
         });
 
 router
     .route('/by-location')
-        .get((req, res) => {
-            const params = {
-                ...req.params,
-                ...req.query,
-            };
+    .get((req, res, next) => {
+        const params = {
+            ...req.params,
+            ...req.query,
+        };
 
-            notariesController.listByLocation(params)
-                .then(data => res.status(200).send(data))
-                .catch(error => res.status(400).send(error));
-        });
+        notariesController.listByLocation(params)
+            .then(data => res.status(200).send(data))
+            .catch(next);
+    });
 
 module.exports = {
     router,

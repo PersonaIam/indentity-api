@@ -118,7 +118,6 @@ module.exports = (client) => {
                 await usersController.update({socketId: null}, user.id);
             }
             else {
-                logger.error(`FAILED TO REMOVE ${client.id} socket`);
                 client.emit(SOCKET_EVENTS.ERROR, 'FAILED_TO_LOG_OUT_OF_CHAT');
             }
         },
@@ -137,7 +136,6 @@ module.exports = (client) => {
                 await usersController.update({socketId: null}, user.id);
             }
             else {
-                logger.error(`FAILED TO REMOVE ${client.id} socket`);
                 client.emit(SOCKET_EVENTS.ERROR, 'FAILED_TO_LOG_OUT_OF_CHAT');
             }
         },

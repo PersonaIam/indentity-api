@@ -3,12 +3,13 @@
  */
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const {Base64: {encode}} = require('js-base64');
+const referralsController = require('./referrals');
 const logger = require('../config/logger');
 const ContactInfo = require('../database/models').ContactInfo;
 const Countries = require('../database/models').Countries;
 const User = require('../database/models').User;
 const UserRole = require('../database/models').UserRole;
-const {Base64: {encode}} = require('js-base64');
 const {REGISTRATION_LINK_JWT_KEY, USER_ROLES, CREDIT_SERVER} = require('../../config/constants');
 const {extractUserInfo} = require('../helpers/extractEncryptedInfo');
 
@@ -117,11 +118,34 @@ const list = ({contactInfo = {}, userRoleInfo = {}, pageNumber = 0, pageSize = 1
 const create = async (req) => {
     try {
         await isAllowed(req);
-        const {username, userRoleId, email, contactInfo} = req.body;
+
+        const {username, userRoleId, email, contactInfo, referralCode} = req.body;
+        let referralInfo;
+
+        if (referralCode) {
+            const referralInfoList = await referralsController.list({ referralCode });
+            referralInfo = referralInfoList[0];
+
+            if (!referralInfo) {
+                throw new Error('Invalid invitation link. Please create your account using the register page');
+            }
+        }
+
         const userInfo = await User.create({username, userRoleId, email});
 
         if (contactInfo) {
             await setUserContactInfo(userInfo, contactInfo);
+        }
+
+        if (referralInfo) {
+            const invitationInfo = {
+                body: {
+                    userId: userInfo.id,
+                    referralId: referralInfo.id,
+                },
+            };
+
+            await referralsController.createInvitation(invitationInfo);
         }
 
         return userInfo;
@@ -199,7 +223,15 @@ const confirmUser = ({address, password, token}) => {
                         };
 
                         update(toUpdate, userInfo.id)
-                            .then(() => {
+                            .then(async () => {
+                                await referralsController.generate(userInfo.id);
+
+                                await referralsController.confirmInvitation({
+                                    body: {
+                                        userId: userInfo.id,
+                                    },
+                                });
+
                                 axios.post(
                                     `${CREDIT_SERVER.HOST}:${CREDIT_SERVER.PORT}${CREDIT_SERVER.PATH}`,
                                     {

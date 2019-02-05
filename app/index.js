@@ -13,6 +13,8 @@ const serverModulesConfigs = require('./config');
 const logger = require('./config/logger');
 const tasks = require('./tasks');
 
+const referralsController = require('./controllers').referralsController;
+
 const app = express();
 
 async.auto(
@@ -33,7 +35,7 @@ async.auto(
         }],
 
         express: ['database', (scope, cb) => {
-            serverModulesConfigs.express.init(app, (error) => cb(error))
+            serverModulesConfigs.express.init(app, (error) => cb(error));
         }],
 
         tasks: ['database', (scope, cb) => {
@@ -57,6 +59,9 @@ async.auto(
             serverModulesConfigs.chat.init(server, () => {
                 logger.info(`Websocket communication established on port: ${PORT}`);
             });
+
+            //ToDo remove when all users have referral codes
+            referralsController.generateReferralsForExistingUsers();
 
             server.listen(PORT, () => {
                 logger.info(`Server started on port: ${PORT}`);
