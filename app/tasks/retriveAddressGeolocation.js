@@ -41,7 +41,10 @@ const findAddressesGeoLocations = (locations) => {
                     logger.error(error);
                 }
             })
-            .catch(logger.error);
+            .catch(error => {
+                logger.error(`Request to GMAPS failed for contactInfoId: ${id}`);
+                logger.error(error);
+            });
       })
   }
 };
