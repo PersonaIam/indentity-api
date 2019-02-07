@@ -9,7 +9,7 @@ const self = {};
 
 const findAddressesGeoLocations = (locations) => {
   if (locations && locations.length) {
-      locations.info(`Finding GEOCORDINATES for ${locations.length} addresses`);
+      logger.info(`Finding GEOCORDINATES for ${locations.length} addresses`);
 
       locations.forEach((location) => {
           const { id, address, city, zipCode, country } = location;
@@ -55,7 +55,9 @@ const searchUnspecifiedGeolocationAddresses = () => {
         },
     })
         .then(findAddressesGeoLocations)
-        .catch(logger.error);
+        .catch(error => {
+            logger.error(error.message ? error.message : error);
+        });
 };
 
 const retriveGeolocationJob = (app) => {

@@ -145,7 +145,9 @@ const confirmRegistrationEmailSent = (userId) => {
 const confirmSubsctiptionEmailSent = (subscriptionId) => {
     subscriptionsController.update({ isSubscriptionEmailSent: true }, subscriptionId)
         // .then(() => console.log('subsctiption updated'))
-        .catch(logger.error);
+        .catch(error => {
+            logger.error(error.message ? error.message : error);
+        });
 };
 
 
