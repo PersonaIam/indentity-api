@@ -37,6 +37,7 @@ const findAddressesGeoLocations = (locations) => {
                     }, id);
                 }
                 catch (error) {
+                    logger.error(`Failed to load location for contactInfoId: ${id}`);
                     logger.error(error);
                 }
             })

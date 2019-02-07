@@ -116,7 +116,10 @@ const sendSubscriptionToUsers = (subscriptionInfoList) => {
                 .then(() => {
                     confirmSubsctiptionEmailSent(id)
                 })
-                .catch(logger.error);
+                .catch(error => {
+                    logger.error(`Failed to send email for contactInfoId: ${id}`);
+                    logger.error(error);
+                });
         });
     }
 };
