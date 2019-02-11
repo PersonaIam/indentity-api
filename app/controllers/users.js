@@ -293,7 +293,7 @@ const getUserByPersonaAddress = async  (personaAddress) => {
 };
 
 const removeUnconfirmedUsers = async () => {
-    const registrationExpirationDate = moment().add(-2 * REGISTRATION_LINK_EXPIRES_IN_HOURS, 'hours');
+    const registrationExpirationDate = moment().add(-1 * REGISTRATION_LINK_EXPIRES_IN_HOURS, 'hours');
 
     const unconfrimedParams = {
         isActive: null,
@@ -313,9 +313,9 @@ const removeUnconfirmedUsers = async () => {
 
             logger.info('Removing users with id: ' + id);
 
-            // await User.destroy({ where: { id: id } });
-            //
-            // await ContactInfo.destroy({ where: { id: contactInfo.id } });
+            await User.destroy({ where: { id: id } });
+
+            await ContactInfo.destroy({ where: { id: contactInfo.id } });
         }
     }
 
