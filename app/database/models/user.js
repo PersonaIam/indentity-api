@@ -65,6 +65,8 @@ module.exports = (sequelize, DataTypes) => {
         User.hasOne(models.Referrals, {
             as: 'referralInfo',
             foreignKey: 'userId',
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
         });
     };
 

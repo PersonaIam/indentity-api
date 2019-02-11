@@ -23,6 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     Referrals.hasMany(models.Invitations, {
       as: 'invitations',
       foreignKey: 'referralId',
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
     });
   };
   return Referrals;

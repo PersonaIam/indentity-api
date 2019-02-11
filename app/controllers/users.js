@@ -10,8 +10,9 @@ const ContactInfo = require('../database/models').ContactInfo;
 const Countries = require('../database/models').Countries;
 const User = require('../database/models').User;
 const UserRole = require('../database/models').UserRole;
-const {REGISTRATION_LINK_JWT_KEY, USER_ROLES, CREDIT_SERVER} = require('../../config/constants');
+const {REGISTRATION_LINK_JWT_KEY, REGISTRATION_LINK_EXPIRES_IN_HOURS, USER_ROLES, CREDIT_SERVER} = require('../../config/constants');
 const {extractUserInfo} = require('../helpers/extractEncryptedInfo');
+const moment = require('moment');
 
 const isAllowed = async (req) => {
     const {body: {userRoleId}, userInfo} = req;
@@ -291,6 +292,38 @@ const getUserByPersonaAddress = async  (personaAddress) => {
     });
 };
 
+const removeUnconfirmedUsers = async () => {
+    const registrationExpirationDate = moment().add(-2 * REGISTRATION_LINK_EXPIRES_IN_HOURS, 'hours');
+
+    const unconfrimedParams = {
+        isActive: null,
+        isRegEmailSent: true,
+        updatedAt: {
+          $lte: registrationExpirationDate.toDate(),
+        },
+    };
+
+    const {
+        count, userInfoList
+    } = await list(unconfrimedParams);
+
+    if (count) {
+        for (let i = 0; i < userInfoList.length; i++) {
+            const { id, contactInfo } = userInfoList[i];
+
+            logger.info('Removing users with id: ' + id);
+
+            // await User.destroy({ where: { id: id } });
+            //
+            // await ContactInfo.destroy({ where: { id: contactInfo.id } });
+        }
+    }
+
+    return {
+        count,
+    };
+};
+
 module.exports = {
     confirmUser,
     create,
@@ -299,5 +332,6 @@ module.exports = {
     getCurrentUserBySocketId,
     getUserByPersonaAddress,
     list,
+    removeUnconfirmedUsers,
     update,
 };

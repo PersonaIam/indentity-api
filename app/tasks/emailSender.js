@@ -25,7 +25,7 @@ const sendUserRegistrationEmail = (email, {
     });
 
     const mailOptions = {
-        from: '"Persona Identity" <persona.identity.api@gmail.com>',
+        from: '"Persona Identity" <helo@persona.im>',
         to: email,
         subject: 'Persona Identity Management Registration ✔',
         html: emailTemplate,
@@ -47,9 +47,9 @@ const sendUserSubscriptionEmail = (email, {
     });
 
     const mailOptions = {
-        from: '"Persona Identity" <persona.identity.api@gmail.com>',
+        from: '"Persona Identity" <hello@persona.im>',
         to: email,
-        subject: 'Persona Identity Management Subscription ✔',
+        subject: 'Persona Identity Registration Confirmation ✔',
         html: emailTemplate,
     };
 
@@ -102,7 +102,10 @@ const sendRegistrationToUsers = (userInfoList) => {
                 .then(() => {
                     confirmRegistrationEmailSent(id)
                 })
-                .catch(logger.error);
+                .catch((error) => {
+                    logger.error('FAILED_TO_SEND_EMAIL_TO: ', email);
+                    logger.error(error.message ? error.message : error);
+                });
         });
     }
 };
