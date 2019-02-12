@@ -4,6 +4,7 @@
 const contactsController = require('./contacts');
 const conversationsController = require('./conversations');
 const countriesController = require('./countries');
+const favoritesController = require('./favorites');
 const notariesController = require('./notaries');
 const providersController = require('./providers');
 const referralsController = require('./referrals');
@@ -14,6 +15,7 @@ module.exports = {
     contactsController,
     conversationsController,
     countriesController,
+    favoritesController,
     notariesController,
     providersController,
     referralsController,

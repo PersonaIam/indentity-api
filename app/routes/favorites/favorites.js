@@ -1,8 +1,8 @@
 /**
- * Created by vladtomsa on 07/11/2018
+ * Created by vladtomsa on 2019-02-12
  */
 const express = require('express');
-const countriesController = require('../../controllers').countriesController;
+const countriesController = require('../../controllers').favoritesController;
 
 const router = express.Router();
 const path = "/countries";

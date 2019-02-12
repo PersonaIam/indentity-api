@@ -4,6 +4,7 @@
 const http = require('axios');
 const logger = require('../config/logger');
 const contactsController = require('../controllers').contactsController;
+const utf8 = require('utf8');
 
 const self = {};
 
@@ -24,7 +25,7 @@ const findAddressesGeoLocations = (locations) => {
 
           if (country) toSearchAddress += `${country.name},`;
 
-          http.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${self.googleMapAPIKey}&address=${toSearchAddress}`)
+          http.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${self.googleMapAPIKey}&address=${utf8.encode(toSearchAddress)}`)
             .then(async (result) => {
                 try {
                     const data = result.data;
@@ -37,13 +38,13 @@ const findAddressesGeoLocations = (locations) => {
                     }, id);
                 }
                 catch (error) {
-                    logger.error(`Failed to load location for contactInfoId: ${id}`);
-                    logger.error(error);
+                    logger.error(`Failed to load location for contactInfoId: ${id} address: ${toSearchAddress}`);
+                    // logger.error(error);
                 }
             })
             .catch(error => {
-                logger.error(`Request to GMAPS failed for contactInfoId: ${id}`);
-                logger.error(error);
+                logger.error(`Request to GMAPS failed for contactInfoId: ${id} address: ${toSearchAddress}`);
+                // logger.error(error);
             });
       })
   }
