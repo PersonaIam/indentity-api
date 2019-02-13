@@ -27,6 +27,9 @@ const verifyUser = async (userInfo) => {
 
     const user = await User.find({
         where: { username },
+        attributes: {
+            exclude: ['contactInfoId', 'isRegEmailSent', 'isActive'],
+        },
         include: [
             {
                 model: UserRole,

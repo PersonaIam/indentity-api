@@ -20,6 +20,25 @@ module.exports = {
         },
         required: ['username', 'userRoleId'],
     },
+    updateUser: {
+        type: 'object',
+        properties: {
+            id: {
+                type: 'number',
+            },
+            username: {
+                type: 'string',
+                minLength: 3,
+                maxLength: 50,
+            },
+            userRoleId: {
+                type: 'number',
+                enum: [1, 2, 3]
+            },
+            contactInfo: createContactInfo,
+        },
+        required: ['id', 'username', 'userRoleId'],
+    },
     confirmUser: {
         type: 'object',
         properties: {

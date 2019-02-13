@@ -56,6 +56,10 @@ router
                 .catch(next);
         })
         .put(validate({body: validationSchema.createUser}), (req, res, next) => {
+            if (req.userInfo.id !== req.body.id) {
+                return next('INVALID_USER_PERFORMING_THIS_OPERATION')
+            }
+
             usersController.update(req.body, req.params.id)
                 .then(data => res.status(200).send(data))
                 .catch(next);

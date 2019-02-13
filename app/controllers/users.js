@@ -55,7 +55,11 @@ const setUserContactInfo = async (userInfo, contactInfo) => {
     let contact;
 
     if (userInfo.contactInfoId) {
-        const updatedContactInfoResultResult = await ContactInfo.update(contactInfo, {
+        // Make sure that email cannot be updated
+        const toUpdate = { ...contactInfo };
+        delete toUpdate.email;
+
+        const updatedContactInfoResultResult = await ContactInfo.update(toUpdate, {
             where: {id: userInfo.contactInfoId},
             individualHooks: true,
         });
@@ -83,7 +87,7 @@ const list = ({contactInfo = {}, userRoleInfo = {}, pageNumber = 0, pageSize = 1
         .findAndCountAll({
             where: {...params},
             attributes: {
-                exclude: ['contactInfoId', 'password', 'socketId'],
+                exclude: ['contactInfoId', 'isRegEmailSent', 'isActive', 'password', 'socketId'],
             },
             offset: pageNumber * pageSize,
             limit: pageSize,
@@ -97,6 +101,9 @@ const list = ({contactInfo = {}, userRoleInfo = {}, pageNumber = 0, pageSize = 1
                     model: ContactInfo,
                     as: 'contactInfo',
                     where: {...contactInfo},
+                    attributes: {
+                        exclude: ['getGeolocationError', 'lat', 'lng', 'phoneNumber'],
+                    },
                     include: [
                         {
                             model: Countries,
@@ -157,9 +164,16 @@ const create = async (req) => {
 
 const update = async (userInfo, id) => {
     try {
+        // Make sure that username and password cannot be updated
+        const toUpdate = { ...userInfo };
+        delete toUpdate.username;
+        delete toUpdate.password;
+        delete toUpdate.contactInfoId;
+
         // public static update(values: Object, options: Object): Promise<Array<affectedCount, affectedRows>>
-        const updatedUserResult = await User.update(userInfo, {where: {id: id}, individualHooks: true});
+        const updatedUserResult = await User.update(toUpdate, {where: {id: id}, individualHooks: true});
         const updatedUser = updatedUserResult[1][0];
+
         if (userInfo.contactInfo) {
             await setUserContactInfo(updatedUser, {
                 ...userInfo.contactInfo,
@@ -204,64 +218,74 @@ const confirmUser = ({address, password, token}) => {
             // Most frequently, if the token has expired JWT will throw an TokenExpiredError here
             const {username, email} = jwt.verify(token, REGISTRATION_LINK_JWT_KEY);
 
-            const verifyUserParams = {
-                // ToDo see if where supports nesting
-                contactInfo: {
-                    email: encode(email),
+            User.find({
+                where: {
+                    username: encode(username),
                 },
-                username: encode(username),
-            };
-
-            list(verifyUserParams)
-                .then(({userInfoList}) => {
-                    if (userInfoList && userInfoList.length) {
-                        const userInfo = userInfoList[0];
-
-                        if (userInfo.isActive || userInfo.password) {
-                            return reject({message: 'User already confirmed'});
-                        }
-
-                        const toUpdate = {
-                            password,
-                            isActive: true,
-                            personaAddress: address,
-                        };
-
-                        update(toUpdate, userInfo.id)
-                            .then(async () => {
-                                await referralsController.generate(userInfo.id);
-
-                                await referralsController.confirmInvitation({
-                                    body: {
-                                        userId: userInfo.id,
-                                    },
-                                });
-
-                                axios.post(
-                                    `${CREDIT_SERVER.HOST}:${CREDIT_SERVER.PORT}${CREDIT_SERVER.PATH}`,
-                                    {
-                                        address,
-                                    }
-                                )
-                                    .then(() => {
-                                        logger.info(`CREDITED ADDRESS: ${address}`);
-                                    })
-                                    .catch(e => {
-                                        logger.error(`CANNOT CREDIT ADDRESS: ${address}`);
-                                        logger.error(e);
-                                    });
-
-                                resolve({
-                                    username
-                                });
-                            })
-                            .catch(reject)
-                    }
-                    else {
+                include: [
+                    {
+                        model: ContactInfo,
+                        as: 'contactInfo',
+                        where: {
+                            email: encode(email),
+                        },
+                        include: [
+                            {
+                                model: Countries,
+                                as: 'country',
+                            },
+                        ],
+                    },
+                ],
+            })
+                .then((userInfo) => {
+                    if (!userInfo) {
                         return reject({message: 'Invalid user'});
                     }
+
+                    if (userInfo.isActive || userInfo.password) {
+                        return reject({message: 'User already confirmed'});
+                    }
+
+                    const toUpdate = {
+                        password,
+                        isActive: true,
+                        personaAddress: address,
+                    };
+
+                    User.update(toUpdate, { where: { id: userInfo.id }, individualHooks: true })
+                        .then(async () => {
+                            await referralsController.generate(userInfo.id);
+
+                            await referralsController.confirmInvitation({
+                                body: {
+                                    userId: userInfo.id,
+                                },
+                            });
+
+                            axios.post(
+                                `${CREDIT_SERVER.HOST}:${CREDIT_SERVER.PORT}${CREDIT_SERVER.PATH}`,
+                                {
+                                    address,
+                                }
+                            )
+                                .then(() => {
+                                    logger.info(`CREDITED ADDRESS: ${address}`);
+                                })
+                                .catch(e => {
+                                    logger.error(`CANNOT CREDIT ADDRESS: ${address}`);
+                                    logger.error(e);
+                                });
+
+                            resolve({
+                                username
+                            });
+                        })
+                        .catch(reject);
                 })
-                .catch((error) => reject(error));
+                .catch(error => {
+                    return reject(error);
+                });
         }
         catch (error) {
             return reject(error);

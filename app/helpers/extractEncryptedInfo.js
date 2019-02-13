@@ -7,7 +7,7 @@ const extractUserInfo = (userInfo) => {
     const user = {
         ...userInfo,
         personaAddress: userInfo.personaAddress ? decode(userInfo.personaAddress) : null,
-        username: decode(userInfo.username),
+        username: userInfo.username ? decode(userInfo.username) : null,
     };
 
     if (userInfo.contactInfo) {
@@ -21,7 +21,7 @@ const extractUserInfo = (userInfo) => {
 const extractContactInfo = (contactInfo) => {
     const contact = {
         ...contactInfo,
-        email: decode(contactInfo.email),
+        email: contactInfo.email ? decode(contactInfo.email) : null,
     };
 
     if (contactInfo.firstName) contact.firstName = decode(contactInfo.firstName);

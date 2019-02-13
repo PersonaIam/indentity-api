@@ -30,7 +30,7 @@ const listByLocation = ({ contactInfo = { }, userRoleInfo = {}, lat, lng, pageNu
             offset: pageNumber * pageSize,
             limit: pageSize,
             attributes: {
-                exclude: ['contactInfoId', 'password', 'userRoleId', 'socketId'],
+                exclude: ['contactInfoId', 'isRegEmailSent', 'isActive','password', 'userRoleId', 'socketId'],
             },
             include: [
                 {
