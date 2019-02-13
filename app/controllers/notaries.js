@@ -55,6 +55,7 @@ const listByLocation = ({ contactInfo = { }, userRoleInfo = {}, lat, lng, pageNu
                     },
                     attributes: {
                         include: [[sequelizeInstance.literal(distanceQuery), 'distance']],
+                        exclude: ['address', 'email', 'getGeolocationError', 'id', 'lat', 'lng', 'phoneNumber', 'zipCode'],
                     },
                     include: [
                         {

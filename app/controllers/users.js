@@ -161,7 +161,11 @@ const update = async (userInfo, id) => {
         const updatedUserResult = await User.update(userInfo, {where: {id: id}, individualHooks: true});
         const updatedUser = updatedUserResult[1][0];
         if (userInfo.contactInfo) {
-            await setUserContactInfo(updatedUser, userInfo.contactInfo);
+            await setUserContactInfo(updatedUser, {
+                ...userInfo.contactInfo,
+                lat: null,
+                lng: null,
+            });
         }
 
         return await User.find({
