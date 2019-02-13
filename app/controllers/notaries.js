@@ -44,7 +44,15 @@ const listByLocation = ({ contactInfo = { }, userRoleInfo = {}, lat, lng, pageNu
                 {
                     model: ContactInfo,
                     as: 'contactInfo',
-                    where: { ...contactInfo },
+                    where: {
+                        ...contactInfo,
+                        lat: {
+                            $ne: null
+                        },
+                        lng: {
+                            $ne: null
+                        },
+                    },
                     attributes: {
                         include: [[sequelizeInstance.literal(distanceQuery), 'distance']],
                     },

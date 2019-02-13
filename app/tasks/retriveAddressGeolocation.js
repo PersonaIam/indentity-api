@@ -38,13 +38,36 @@ const findAddressesGeoLocations = (locations) => {
                     }, id);
                 }
                 catch (error) {
-                    logger.error(`Failed to load location for contactInfoId: ${id} address: ${toSearchAddress}`);
-                    // logger.error(error);
+                    let errorMessage = error.message;
+
+                    if (result && result.data && result.data.error_message) {
+                        errorMessage = result.data.error_message;
+                    }
+
+                    logger.error(`Failed to update location for contactInfoId: ${id} address: ${toSearchAddress}`);
+
+                    throw new Error(errorMessage);
                 }
             })
-            .catch(error => {
+            .catch(async error => {
+                let errorMessage = error.message;
+
+                if (error && error.response && error.response.data && error.response.data.error_message) {
+                    logger.error(error.response.data.error_message);
+
+                    errorMessage = error.response.data.error_message;
+                }
+
+                try {
+                    await contactsController.update({
+                        getGeolocationError: errorMessage,
+                    }, id);
+                }
+                catch (error) {
+                    logger.error(`Failed to update error ${errorMessage}`);
+                }
+
                 logger.error(`Request to GMAPS failed for contactInfoId: ${id} address: ${toSearchAddress}`);
-                // logger.error(error);
             });
       })
   }
@@ -54,6 +77,7 @@ const searchUnspecifiedGeolocationAddresses = () => {
     contactsController.list({
         lat: null,
         lng: null,
+        getGeolocationError: null,
         address: {
             $ne: null
         },

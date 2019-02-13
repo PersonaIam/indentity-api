@@ -59,6 +59,7 @@ module.exports = (sequelize, DataTypes) => {
         zipCode: DataTypes.STRING,
         lat: DataTypes.STRING,
         lng: DataTypes.STRING,
+        getGeolocationError: DataTypes.STRING,
         countryId: {
             type: DataTypes.INTEGER,
             allowNull: true,
