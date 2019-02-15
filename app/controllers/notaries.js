@@ -38,8 +38,15 @@ const listByLocation = ({ contactInfo = { }, userRoleInfo = {}, lat, lng, pageNu
                     as: 'userRoleInfo',
                     where: {
                         ...userRoleInfo,
-                        name: USER_ROLES.NOTARY,
-                    }
+                        $or: [
+                            {
+                                name: USER_ROLES.NOTARY
+                            },
+                            {
+                                name: USER_ROLES.PROVIDER
+                            },
+                        ],
+                    },
                 },
                 {
                     model: ContactInfo,
