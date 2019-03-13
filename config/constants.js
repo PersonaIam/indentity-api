@@ -16,6 +16,25 @@ module.exports = {
         uppercase: true,
         strict: true,
     },
+    SANCTION_SOURCE_TYPES: {
+        US_TREASURY: {
+            name: 'US Treasury sanction list',
+            urls: [
+                'https://www.treasury.gov/ofac/downloads/sanctions/1.0/cons_advanced.xml',
+                'https://www.treasury.gov/ofac/downloads/sanctions/1.0/sdn_advanced.xml'
+            ],
+        },
+        EU_TREASURY: {
+            name: 'EU Financial Sanctions',
+            urls: [
+                'https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList/content?token=n002hisy'
+            ],
+        },
+    },
+    SANCTIONS_ESEARCH: {
+        index: 'sanction-list',
+        type: 'sanction-entity',
+    },
     SOCKET_EVENTS: {
         GET_CONVERSATION: 'get-conversation',
         GET_USERS_CONVERSATIONS: 'get-users-conversation',

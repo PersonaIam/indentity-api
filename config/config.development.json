@@ -19,6 +19,10 @@
       "idle": 10000
     }
   },
+  "elasticSearch": {
+    "host": "127.0.0.1:9200",
+    "log": "error"
+  },
   "email": {
     "host": "smtp.sendgrid.net",
     "port": 587,

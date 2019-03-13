@@ -1,6 +1,7 @@
 /**
  * Created by vladtomsa on 27/09/2018
  */
+const checkSanctionSourcesJob = require('./retriveSanctionsList');
 const emailSender = require('./emailSender');
 const removeUnconfrimed = require('./removeUnconfirmedUsers');
 const retriveAddressGeolocation = require('./retriveAddressGeolocation');
@@ -47,6 +48,15 @@ const getCronInterval = (interval = {}, isFixedTime) => {
     return `${seconds} ${minutes} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
 };
 
+const checkSanctionSourcesTask = () => {
+    const { interval, task } = checkSanctionSourcesJob();
+
+    return {
+        interval: getCronInterval(interval, true),
+        task: task,
+    };
+};
+
 const emailSenderTask = (app) => {
     const { interval, task } = emailSender(app);
 
@@ -76,6 +86,7 @@ const removeUnconfirmedUsersTask = () => {
 };
 
 module.exports = [
+    checkSanctionSourcesTask,
     emailSenderTask,
     retriveAddressGeolocationTask,
     removeUnconfirmedUsersTask,

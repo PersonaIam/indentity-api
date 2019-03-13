@@ -6,6 +6,7 @@ const favorites = require('./favorites/favorites');
 const notaries = require('./notaries/notaries');
 const providers = require('./providers/providers');
 const referrals = require('./referrals/referrals');
+const sanctions = require('./sanctions/sanctions');
 const subscription = require('./subscription/subscription');
 const users = require('./users/users');
 
@@ -15,6 +16,7 @@ module.exports = [
     notaries,
     providers,
     referrals,
+    sanctions,
     subscription,
     users,
 ];

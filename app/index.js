@@ -30,7 +30,11 @@ async.auto(
             serverModulesConfigs.umzug.syncDatabase();
         }],
 
-        email: ['config', (scope, cb) => {
+        elasticSearch: ['config', (scope, cb) => {
+            serverModulesConfigs.elasticSearch.init(app, (error) => cb(error));
+        }],
+
+        email: ['elasticSearch', (scope, cb) => {
             serverModulesConfigs.email.init(app, (error) => cb(error))
         }],
 
